@@ -2,45 +2,39 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
-const db = require("./src/config/db"); // Import database connection
-
+const db = require("./src/config/db");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Test Route
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
-// ✅ Add Data (POST API)
 app.post("/add-data", (req, res) => {
     const { subject1, subject2, subject3, subject4 } = req.body;
 
-    // ✅ Ensure all fields are received
     if (!subject1 || !subject2 || !subject3 || !subject4) {
-        console.error("❌ Missing fields in request body:", req.body);
+        console.error("Missing fields in request body:", req.body);
         return res.status(400).json({ error: "All subjects are required!" });
     }
 
-    // ✅ Insert data WITHOUT using `id` (Database should auto-generate it)
     const query = `INSERT INTO data (subject1, subject2, subject3, subject4) VALUES (?, ?, ?, ?)`;
 
     db.query(query, [subject1, subject2, subject3, subject4], (err, result) => {
         if (err) {
-            console.error("❌ Database Insertion Error:", err);
+            console.error("Database Insertion Error:", err);
             return res.status(500).json({ error: "Failed to add marks" });
         }
 
-        console.log("✅ Marks inserted successfully with ID:", result.insertId);
+        console.log("Marks inserted successfully with ID:", result.insertId);
         res.status(200).json({ message: "Marks inserted successfully", id: result.insertId });
     });
 });
 
 
-// ✅ Fetch Data (GET API)
 app.get("/get-data", (req, res) => {
     const query = "SELECT * FROM data";
 
@@ -53,7 +47,6 @@ app.get("/get-data", (req, res) => {
     });
 });
 
-// ✅ Update Data (PUT API)
 app.put("/update-data/:id", (req, res) => {
     const { id } = req.params;
     const { subject1, subject2, subject3, subject4 } = req.body;
@@ -74,7 +67,6 @@ app.put("/update-data/:id", (req, res) => {
     });
 });
 
-// ✅ Delete Data (DELETE API)
 app.delete("/delete-data/:id", (req, res) => {
     const { id } = req.params;
 
@@ -90,7 +82,6 @@ app.delete("/delete-data/:id", (req, res) => {
     });
 });
 
-// Start Server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
